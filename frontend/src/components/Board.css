@@ -1,0 +1,74 @@
+.board {
+  display: inline-block;
+  border: 2px solid #333;
+  background: #e0f2fe;
+}
+
+.board-row {
+  display: flex;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: #f0f9ff;
+  transition: all 0.2s;
+}
+
+.cell.ship {
+  background: #3b82f6;
+}
+
+.cell.ship-sunk {
+  background: #64748b;
+}
+
+.cell.hit {
+  background: #ef4444;
+}
+
+.cell.miss {
+  background: #60a5fa;
+}
+
+.cell.attackable {
+  cursor: pointer;
+}
+
+.cell.attackable:hover {
+  background: #fef3c7;
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.sunk-ships {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.sunk-ships h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.sunk-ships ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sunk-ships li {
+  padding: 5px 0;
+  color: #666;
+}
+
+
+
