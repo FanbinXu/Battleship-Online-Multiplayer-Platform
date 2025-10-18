@@ -9,98 +9,105 @@
       "name": "jwt",
       "type": "app.battleship.config.BattleshipProperties$Jwt",
       "sourceType": "app.battleship.config.BattleshipProperties",
-      "sourceMethod": "public app.battleship.config.BattleshipProperties.Jwt getJwt() "
+      "sourceMethod": "getJwt()"
     },
     {
       "name": "openai",
       "type": "app.battleship.config.BattleshipProperties$OpenAI",
       "sourceType": "app.battleship.config.BattleshipProperties",
-      "sourceMethod": "public app.battleship.config.BattleshipProperties.OpenAI getOpenai() "
+      "sourceMethod": "getOpenai()"
     },
     {
       "name": "openai.api",
       "type": "app.battleship.config.BattleshipProperties$OpenAI$Api",
       "sourceType": "app.battleship.config.BattleshipProperties$OpenAI",
-      "sourceMethod": "public app.battleship.config.BattleshipProperties.OpenAI.Api getApi() "
+      "sourceMethod": "getApi()"
     },
     {
       "name": "reconnect",
       "type": "app.battleship.config.BattleshipProperties$Reconnect",
       "sourceType": "app.battleship.config.BattleshipProperties",
-      "sourceMethod": "public app.battleship.config.BattleshipProperties.Reconnect getReconnect() "
+      "sourceMethod": "getReconnect()"
     },
     {
       "name": "reconnect.grace",
       "type": "app.battleship.config.BattleshipProperties$Reconnect$Grace",
       "sourceType": "app.battleship.config.BattleshipProperties$Reconnect",
-      "sourceMethod": "public app.battleship.config.BattleshipProperties.Reconnect.Grace getGrace() "
+      "sourceMethod": "getGrace()"
     },
     {
       "name": "room",
       "type": "app.battleship.config.BattleshipProperties$Room",
       "sourceType": "app.battleship.config.BattleshipProperties",
-      "sourceMethod": "public app.battleship.config.BattleshipProperties.Room getRoom() "
+      "sourceMethod": "getRoom()"
     },
     {
       "name": "room.cleanup",
       "type": "app.battleship.config.BattleshipProperties$Room$Cleanup",
       "sourceType": "app.battleship.config.BattleshipProperties$Room",
-      "sourceMethod": "public app.battleship.config.BattleshipProperties.Room.Cleanup getCleanup() "
+      "sourceMethod": "getCleanup()"
     },
     {
       "name": "room.empty",
       "type": "app.battleship.config.BattleshipProperties$Room$Empty",
       "sourceType": "app.battleship.config.BattleshipProperties$Room",
-      "sourceMethod": "public app.battleship.config.BattleshipProperties.Room.Empty getEmpty() "
+      "sourceMethod": "getEmpty()"
     },
     {
       "name": "turn",
       "type": "app.battleship.config.BattleshipProperties$Turn",
       "sourceType": "app.battleship.config.BattleshipProperties",
-      "sourceMethod": "public app.battleship.config.BattleshipProperties.Turn getTurn() "
+      "sourceMethod": "getTurn()"
     },
     {
       "name": "turn.timeout",
       "type": "app.battleship.config.BattleshipProperties$Turn$Timeout",
       "sourceType": "app.battleship.config.BattleshipProperties$Turn",
-      "sourceMethod": "public app.battleship.config.BattleshipProperties.Turn.Timeout getTimeout() "
+      "sourceMethod": "getTimeout()"
     }
   ],
   "properties": [
     {
       "name": "jwt.expiration",
       "type": "java.lang.Long",
-      "sourceType": "app.battleship.config.BattleshipProperties$Jwt"
+      "sourceType": "app.battleship.config.BattleshipProperties$Jwt",
+      "defaultValue": 86400
     },
     {
       "name": "jwt.secret",
       "type": "java.lang.String",
-      "sourceType": "app.battleship.config.BattleshipProperties$Jwt"
+      "sourceType": "app.battleship.config.BattleshipProperties$Jwt",
+      "defaultValue": "please_change_me_this_is_a_very_long_secret_key_for_jwt_signing"
     },
     {
       "name": "openai.api.key",
       "type": "java.lang.String",
-      "sourceType": "app.battleship.config.BattleshipProperties$OpenAI$Api"
+      "sourceType": "app.battleship.config.BattleshipProperties$OpenAI$Api",
+      "defaultValue": ""
     },
     {
       "name": "reconnect.grace.sec",
       "type": "java.lang.Long",
-      "sourceType": "app.battleship.config.BattleshipProperties$Reconnect$Grace"
+      "sourceType": "app.battleship.config.BattleshipProperties$Reconnect$Grace",
+      "defaultValue": 60
     },
     {
       "name": "room.cleanup.interval",
       "type": "java.lang.Long",
-      "sourceType": "app.battleship.config.BattleshipProperties$Room$Cleanup"
+      "sourceType": "app.battleship.config.BattleshipProperties$Room$Cleanup",
+      "defaultValue": 30000
     },
     {
       "name": "room.empty.ttl",
       "type": "java.lang.Long",
-      "sourceType": "app.battleship.config.BattleshipProperties$Room$Empty"
+      "sourceType": "app.battleship.config.BattleshipProperties$Room$Empty",
+      "defaultValue": 60
     },
     {
       "name": "turn.timeout.sec",
       "type": "java.lang.Long",
-      "sourceType": "app.battleship.config.BattleshipProperties$Turn$Timeout"
+      "sourceType": "app.battleship.config.BattleshipProperties$Turn$Timeout",
+      "defaultValue": 30
     }
   ],
   "hints": [],

@@ -11,13 +11,16 @@ app/battleship/model/User.class
 app/battleship/persist/UserRepository.class
 app/battleship/api/GameController.class
 app/battleship/config/BattleshipProperties.class
+app/battleship/model/GameEvent.class
 app/battleship/service/GameService.class
 app/battleship/config/BattleshipProperties$Reconnect.class
 app/battleship/service/AiSuggestionService.class
 app/battleship/api/SuggestionController.class
 app/battleship/config/BattleshipProperties$OpenAI$Api.class
 app/battleship/config/BattleshipProperties$Jwt.class
+app/battleship/model/MoveRequest.class
 app/battleship/config/AsyncConfig.class
+app/battleship/config/CorsConfig.class
 app/battleship/config/BattleshipProperties$Room$Empty.class
 app/battleship/persist/EventRepository.class
 app/battleship/model/Room.class
