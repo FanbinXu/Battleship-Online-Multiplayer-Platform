@@ -87,7 +87,7 @@ const Game: React.FC = () => {
     }
   }, [dispatch, auth.userId, navigate]);
 
-  const handleAttack = async (target: { r: number; c: number }) => {
+  const handleAttack = useCallback(async (target: { r: number; c: number }) => {
     if (!gameId || !yourView) return;
     
     if (yourView.currentPlayerId !== auth.userId) {
@@ -140,9 +140,9 @@ const Game: React.FC = () => {
       console.error('[Game] Error response:', error.response?.data);
       toast.error(error.response?.data?.error || 'Attack failed');
     }
-  };
+  }, [gameId, yourView, auth.userId, dispatch]);
 
-  const handleRequestSuggestion = async () => {
+  const handleRequestSuggestion = useCallback(async () => {
     if (!gameId) return;
     
     try {
@@ -151,16 +151,16 @@ const Game: React.FC = () => {
     } catch (error: any) {
       toast.error('Failed to request suggestion');
     }
-  };
+  }, [gameId]);
 
-  const handleApplySuggestion = () => {
+  const handleApplySuggestion = useCallback(() => {
     if (suggestion && suggestion.detail?.target) {
       handleAttack(suggestion.detail.target);
       dispatch(setSuggestion(null));
     }
-  };
+  }, [suggestion, handleAttack, dispatch]);
 
-  const handleShipMove = async (shipId: string, newPosition: { r: number; c: number }, isHorizontal: boolean) => {
+  const handleShipMove = useCallback(async (shipId: string, newPosition: { r: number; c: number }, isHorizontal: boolean) => {
     if (!gameId || !yourView) return;
     
     if (yourView.currentPlayerId !== auth.userId) {
@@ -185,7 +185,7 @@ const Game: React.FC = () => {
     } catch (error: any) {
       toast.error(error.response?.data?.reason || error.response?.data?.error || 'Move failed');
     }
-  };
+  }, [gameId, yourView, auth.userId, dispatch]);
 
   if (!yourView) {
     return <div className="loading">Loading game...</div>;

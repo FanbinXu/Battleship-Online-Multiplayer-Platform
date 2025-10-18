@@ -29,6 +29,58 @@ interface DragState {
   isValid: boolean;
 }
 
+// Custom comparison function for deep props comparison
+const arePropsEqual = (prevProps: MyBoardProps, nextProps: MyBoardProps): boolean => {
+  // Compare primitive values
+  if (prevProps.canMove !== nextProps.canMove) return false;
+  
+  // Compare function references (should be stable with useCallback)
+  if (prevProps.onShipMove !== nextProps.onShipMove) return false;
+  
+  // Deep compare arrays by length and content
+  if (prevProps.ships.length !== nextProps.ships.length) return false;
+  if (prevProps.hits.length !== nextProps.hits.length) return false;
+  if (prevProps.misses.length !== nextProps.misses.length) return false;
+  
+  // Compare ships deeply (id, kind, cells, sunk)
+  for (let i = 0; i < prevProps.ships.length; i++) {
+    const prevShip = prevProps.ships[i];
+    const nextShip = nextProps.ships[i];
+    
+    if (prevShip.id !== nextShip.id || 
+        prevShip.kind !== nextShip.kind || 
+        prevShip.sunk !== nextShip.sunk ||
+        prevShip.cells.length !== nextShip.cells.length) {
+      return false;
+    }
+    
+    for (let j = 0; j < prevShip.cells.length; j++) {
+      if (prevShip.cells[j].r !== nextShip.cells[j].r || 
+          prevShip.cells[j].c !== nextShip.cells[j].c) {
+        return false;
+      }
+    }
+  }
+  
+  // Compare hits coordinates
+  for (let i = 0; i < prevProps.hits.length; i++) {
+    if (prevProps.hits[i].r !== nextProps.hits[i].r || 
+        prevProps.hits[i].c !== nextProps.hits[i].c) {
+      return false;
+    }
+  }
+  
+  // Compare misses coordinates
+  for (let i = 0; i < prevProps.misses.length; i++) {
+    if (prevProps.misses[i].r !== nextProps.misses[i].r || 
+        prevProps.misses[i].c !== nextProps.misses[i].c) {
+      return false;
+    }
+  }
+  
+  return true;
+};
+
 const MyBoard: React.FC<MyBoardProps> = ({ ships, hits, misses, canMove = false, onShipMove }) => {
   const [dragState, setDragState] = useState<DragState>({
     shipId: null,
@@ -248,7 +300,8 @@ const MyBoard: React.FC<MyBoardProps> = ({ ships, hits, misses, canMove = false,
   );
 };
 
-export default MyBoard;
+// Wrap with React.memo for performance optimization
+export default React.memo(MyBoard, arePropsEqual);
 
 
 

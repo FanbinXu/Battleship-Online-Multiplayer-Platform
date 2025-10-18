@@ -9,7 +9,7 @@ interface Room {
   updatedAt: string;
 }
 
-interface RoomsState {
+export interface RoomsState {
   list: Room[];
   loading: boolean;
   error: string | null;

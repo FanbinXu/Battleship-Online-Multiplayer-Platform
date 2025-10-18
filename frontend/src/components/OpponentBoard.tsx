@@ -22,6 +22,68 @@ interface OpponentBoardProps {
   disabled: boolean;
 }
 
+// Custom comparison function for deep props comparison
+const arePropsEqual = (prevProps: OpponentBoardProps, nextProps: OpponentBoardProps): boolean => {
+  // Compare primitive values
+  if (prevProps.disabled !== nextProps.disabled) return false;
+  
+  // Compare function references (should be stable with useCallback)
+  if (prevProps.onAttack !== nextProps.onAttack) return false;
+  
+  // Deep compare attacksByMe
+  if (!prevProps.attacksByMe || !nextProps.attacksByMe) {
+    return prevProps.attacksByMe === nextProps.attacksByMe;
+  }
+  
+  const prevHits = prevProps.attacksByMe.hits || [];
+  const nextHits = nextProps.attacksByMe.hits || [];
+  const prevMisses = prevProps.attacksByMe.misses || [];
+  const nextMisses = nextProps.attacksByMe.misses || [];
+  
+  if (prevHits.length !== nextHits.length) return false;
+  if (prevMisses.length !== nextMisses.length) return false;
+  
+  // Compare hits
+  for (let i = 0; i < prevHits.length; i++) {
+    if (prevHits[i].r !== nextHits[i].r || prevHits[i].c !== nextHits[i].c) {
+      return false;
+    }
+  }
+  
+  // Compare misses
+  for (let i = 0; i < prevMisses.length; i++) {
+    if (prevMisses[i].r !== nextMisses[i].r || prevMisses[i].c !== nextMisses[i].c) {
+      return false;
+    }
+  }
+  
+  // Compare sunkShips
+  if (prevProps.sunkShips.length !== nextProps.sunkShips.length) return false;
+  
+  for (let i = 0; i < prevProps.sunkShips.length; i++) {
+    const prevShip = prevProps.sunkShips[i];
+    const nextShip = nextProps.sunkShips[i];
+    
+    if (prevShip.kind !== nextShip.kind || prevShip.length !== nextShip.length) {
+      return false;
+    }
+    
+    // Compare cells if present
+    const prevCells = prevShip.cells || [];
+    const nextCells = nextShip.cells || [];
+    
+    if (prevCells.length !== nextCells.length) return false;
+    
+    for (let j = 0; j < prevCells.length; j++) {
+      if (prevCells[j].r !== nextCells[j].r || prevCells[j].c !== nextCells[j].c) {
+        return false;
+      }
+    }
+  }
+  
+  return true;
+};
+
 const OpponentBoard: React.FC<OpponentBoardProps> = ({ attacksByMe, sunkShips, onAttack, disabled }) => {
   // Debug: Log received data
   console.log('[OpponentBoard] Render - Full attacksByMe object:', JSON.stringify(attacksByMe, null, 2));
@@ -151,7 +213,8 @@ const OpponentBoard: React.FC<OpponentBoardProps> = ({ attacksByMe, sunkShips, o
   );
 };
 
-export default OpponentBoard;
+// Wrap with React.memo for performance optimization
+export default React.memo(OpponentBoard, arePropsEqual);
 
 
 

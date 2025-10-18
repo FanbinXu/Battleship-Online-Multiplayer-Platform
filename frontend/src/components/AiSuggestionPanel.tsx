@@ -16,6 +16,27 @@ interface AiSuggestionPanelProps {
   disabled: boolean;
 }
 
+// Custom comparison function for props comparison
+const arePropsEqual = (prevProps: AiSuggestionPanelProps, nextProps: AiSuggestionPanelProps): boolean => {
+  // Compare primitive values
+  if (prevProps.disabled !== nextProps.disabled) return false;
+  
+  // Compare function references (should be stable with useCallback)
+  if (prevProps.onRequest !== nextProps.onRequest) return false;
+  if (prevProps.onApply !== nextProps.onApply) return false;
+  
+  // Deep compare suggestion
+  if (!prevProps.suggestion && !nextProps.suggestion) return true;
+  if (!prevProps.suggestion || !nextProps.suggestion) return false;
+  
+  return (
+    prevProps.suggestion.type === nextProps.suggestion.type &&
+    prevProps.suggestion.confidence === nextProps.suggestion.confidence &&
+    prevProps.suggestion.detail.target.r === nextProps.suggestion.detail.target.r &&
+    prevProps.suggestion.detail.target.c === nextProps.suggestion.detail.target.c
+  );
+};
+
 const AiSuggestionPanel: React.FC<AiSuggestionPanelProps> = ({
   suggestion,
   onRequest,
@@ -70,7 +91,8 @@ const AiSuggestionPanel: React.FC<AiSuggestionPanelProps> = ({
   );
 };
 
-export default AiSuggestionPanel;
+// Wrap with React.memo for performance optimization
+export default React.memo(AiSuggestionPanel, arePropsEqual);
 
 
 

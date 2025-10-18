@@ -48,7 +48,7 @@ interface Suggestion {
   };
 }
 
-interface GameState {
+export interface GameState {
   gameId: string | null;
   yourView: YourView | null;
   suggestion: Suggestion | null;

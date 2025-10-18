@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
-interface ConnectionState {
+export interface ConnectionState {
   wsConnected: boolean;
   lastHeartbeatAt: number | null;
   reconnecting: boolean;
