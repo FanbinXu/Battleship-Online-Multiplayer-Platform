@@ -7,8 +7,12 @@ A full-stack, real-time multiplayer Battleship game with AI-powered attack sugge
 - 🎮 Real-time PvP gameplay via WebSocket (STOMP)
 - 🔐 Email/password authentication with JWT
 - 🤖 AI-powered attack suggestions (OpenAI integration with fallback heuristic)
-- 🎯 Standard Battleship rules (10x10 board, 5 ships)
-- 🚢 Automatic ship placement
+- 🎯 Advanced Battleship rules (10x10 board, 5 ships)
+- 🚢 Dynamic ship movement during gameplay
+- 💥 Attack marking system (Hit/Miss tracking)
+- 🔄 Re-attack mechanism to verify opponent ship movement
+- 🎯 Relative damage tracking (damage persists when ships move)
+- 🔒 Miss privacy (opponents don't see your misses)
 - 📊 Event sourcing architecture
 - 💾 Redis for hot state, MongoDB for persistence
 - 🎨 Modern, responsive UI
@@ -251,6 +255,45 @@ BattleShip2/
 └── infra/
     └── docker-compose.dev.yml
 ```
+
+## Documentation
+
+- **[QUICKSTART.md](QUICKSTART.md)** - 快速开始指南
+- **[PROJECT_ARCHITECTURE.md](PROJECT_ARCHITECTURE.md)** - 项目架构详解
+- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - 项目功能总结
+- **[ATTACK_SYSTEM_GUIDE.md](ATTACK_SYSTEM_GUIDE.md)** - 攻击标记系统完整指南（必读）
+
+## Testing
+
+Use the unified test script for easy testing and debugging:
+
+```bash
+# Make script executable (first time only)
+chmod +x test.sh
+
+# Run complete test setup
+./test.sh test
+
+# View real-time backend logs
+./test.sh logs
+
+# View attack-specific logs
+./test.sh logs-attack
+
+# Check service status
+./test.sh status
+
+# Clean all data (for fresh start)
+./test.sh clean
+
+# Restart backend
+./test.sh restart
+
+# Show all commands
+./test.sh
+```
+
+Backend logs are saved to `/tmp/battleship-backend.log`
 
 ## Contributing
 

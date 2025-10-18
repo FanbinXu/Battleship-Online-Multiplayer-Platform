@@ -18,6 +18,7 @@ app/battleship/service/AiSuggestionService.class
 app/battleship/api/SuggestionController.class
 app/battleship/config/BattleshipProperties$OpenAI$Api.class
 app/battleship/config/BattleshipProperties$Jwt.class
+app/battleship/model/ShipMoveRequest.class
 app/battleship/model/MoveRequest.class
 app/battleship/config/AsyncConfig.class
 app/battleship/config/CorsConfig.class

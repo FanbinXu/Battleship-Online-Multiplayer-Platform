@@ -20,6 +20,7 @@ const Game: React.FC = () => {
   const { wsConnected } = useSelector((state: RootState) => state.connection);
   const ws = useWebSocket();
   const [roomId, setRoomId] = useState<string | null>(null);
+  const [actionMode, setActionMode] = useState<'attack' | 'move'>('attack');
 
   useEffect(() => {
     if (!gameId) return;
@@ -96,7 +97,18 @@ const Game: React.FC = () => {
 
     try {
       const actionId = `attack-${Date.now()}-${Math.random()}`;
+      console.log('[Game] ============ ATTACK START ============');
+      console.log('[Game] Sending attack to:', target);
+      console.log('[Game] Current turn:', yourView.turn);
+      console.log('[Game] Current attacksByMe BEFORE attack:', yourView.opponent?.revealed?.attacksByMe);
+      
       const response = await gameApi.attack(gameId, actionId, yourView.turn, target);
+      
+      console.log('[Game] ============ ATTACK RESPONSE ============');
+      console.log('[Game] Full response:', JSON.stringify(response.data, null, 2));
+      console.log('[Game] Response success:', response.data.success);
+      console.log('[Game] Response isHit:', response.data.isHit);
+      console.log('[Game] Response target:', response.data.target);
       
       if (response.data.success) {
         const isHit = response.data.isHit;
@@ -107,10 +119,25 @@ const Game: React.FC = () => {
         }
         
         if (response.data.yourView) {
+          console.log('[Game] ============ UPDATING VIEW ============');
+          console.log('[Game] New yourView full object:', response.data.yourView);
+          console.log('[Game] New opponent object:', response.data.yourView.opponent);
+          console.log('[Game] New revealed object:', response.data.yourView.opponent?.revealed);
+          console.log('[Game] New attacksByMe object:', response.data.yourView.opponent?.revealed?.attacksByMe);
+          console.log('[Game] New attacksByMe.hits:', response.data.yourView.opponent?.revealed?.attacksByMe?.hits);
+          console.log('[Game] New attacksByMe.misses:', response.data.yourView.opponent?.revealed?.attacksByMe?.misses);
+          
           dispatch(setYourView(response.data.yourView));
+          
+          console.log('[Game] ============ VIEW UPDATED ============');
+        } else {
+          console.error('[Game] ❌ No yourView in response!');
         }
       }
     } catch (error: any) {
+      console.error('[Game] ============ ATTACK ERROR ============');
+      console.error('[Game] Error:', error);
+      console.error('[Game] Error response:', error.response?.data);
       toast.error(error.response?.data?.error || 'Attack failed');
     }
   };
@@ -133,9 +160,41 @@ const Game: React.FC = () => {
     }
   };
 
+  const handleShipMove = async (shipId: string, newPosition: { r: number; c: number }, isHorizontal: boolean) => {
+    if (!gameId || !yourView) return;
+    
+    if (yourView.currentPlayerId !== auth.userId) {
+      toast.warning("Not your turn!");
+      return;
+    }
+
+    try {
+      const actionId = `move-${Date.now()}-${Math.random()}`;
+      const response = await gameApi.moveShip(gameId, actionId, yourView.turn, shipId, newPosition, isHorizontal);
+      
+      if (response.data.success) {
+        toast.success('🚢 Ship moved!');
+        
+        if (response.data.yourView) {
+          dispatch(setYourView(response.data.yourView));
+        }
+        
+        // Switch back to attack mode after move
+        setActionMode('attack');
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.reason || error.response?.data?.error || 'Move failed');
+    }
+  };
+
   if (!yourView) {
     return <div className="loading">Loading game...</div>;
   }
+
+  // Debug: Log the complete yourView data
+  console.log('[Game] Complete yourView:', yourView);
+  console.log('[Game] Opponent revealed:', yourView.opponent?.revealed);
+  console.log('[Game] AttacksByMe:', yourView.opponent?.revealed?.attacksByMe);
 
   const isMyTurn = yourView.currentPlayerId === auth.userId;
 
@@ -151,6 +210,28 @@ const Game: React.FC = () => {
         </div>
       </div>
 
+      {isMyTurn && !yourView.winnerPlayerId && (
+        <div className="action-selector">
+          <button 
+            className={`action-btn ${actionMode === 'attack' ? 'active' : ''}`}
+            onClick={() => setActionMode('attack')}
+          >
+            ⚔️ Attack
+          </button>
+          <button 
+            className={`action-btn ${actionMode === 'move' ? 'active' : ''}`}
+            onClick={() => setActionMode('move')}
+          >
+            🚢 Move Ship
+          </button>
+          <div className="action-hint">
+            {actionMode === 'attack' 
+              ? 'Click on opponent\'s board to attack' 
+              : 'Drag your ships to move them (valid: blue, invalid: red)'}
+          </div>
+        </div>
+      )}
+
       <div className="game-boards">
         <div className="board-section">
           <h2>Your Board</h2>
@@ -158,6 +239,8 @@ const Game: React.FC = () => {
             ships={yourView.me.board.ships}
             hits={yourView.me.board.hits}
             misses={yourView.me.board.misses}
+            canMove={isMyTurn && actionMode === 'move' && !yourView.winnerPlayerId}
+            onShipMove={handleShipMove}
           />
         </div>
 
@@ -167,7 +250,7 @@ const Game: React.FC = () => {
             attacksByMe={yourView.opponent.revealed.attacksByMe}
             sunkShips={yourView.opponent.revealed.sunkShips}
             onAttack={handleAttack}
-            disabled={!isMyTurn || yourView.winnerPlayerId !== undefined}
+            disabled={!isMyTurn || yourView.winnerPlayerId !== undefined || actionMode === 'move'}
           />
         </div>
       </div>

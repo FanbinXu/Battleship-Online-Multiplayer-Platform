@@ -70,5 +70,31 @@
   color: #666;
 }
 
+/* Drag and drop styles */
+.cell.dragging {
+  opacity: 0.4;
+}
+
+.cell.preview-valid {
+  background: #93c5fd !important;
+  border: 2px dashed #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.cell.preview-invalid {
+  background: #fca5a5 !important;
+  border: 2px dashed #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.cell[draggable="true"] {
+  cursor: move;
+}
+
+.cell[draggable="true"]:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+}
+
 
 

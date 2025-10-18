@@ -17,6 +17,12 @@ public class ViewShapingService {
                 .orElseThrow();
         PlayerState opponentState = gameState.getPlayers().get(opponentId);
         
+        System.out.println("[ViewShaping] Creating view for player: " + playerId);
+        System.out.println("[ViewShaping] AttacksByMeHits size: " + myState.getBoard().getAttacksByMeHits().size());
+        System.out.println("[ViewShaping] AttacksByMeHits coords: " + myState.getBoard().getAttacksByMeHits());
+        System.out.println("[ViewShaping] AttacksByMeMisses size: " + myState.getBoard().getAttacksByMeMisses().size());
+        System.out.println("[ViewShaping] AttacksByMeMisses coords: " + myState.getBoard().getAttacksByMeMisses());
+        
         Map<String, Object> view = new HashMap<>();
         
         // My board (fully visible)
@@ -30,8 +36,8 @@ public class ViewShapingService {
                 ))
                 .collect(Collectors.toList())
         );
-        myBoard.put("hits", myState.getBoard().getHits());
-        myBoard.put("misses", myState.getBoard().getMisses());
+        myBoard.put("hits", myState.getBoard().getHits());  // Only opponent's hits on my ships
+        myBoard.put("misses", myState.getBoard().getMisses());  // Should be empty - opponent's misses are not recorded
         
         Map<String, Object> me = new HashMap<>();
         me.put("board", myBoard);
@@ -40,33 +46,33 @@ public class ViewShapingService {
         // Opponent board (fogged - only show what I've attacked)
         Map<String, Object> revealed = new HashMap<>();
         
-        // My attacks on opponent
-        List<Coord> myHits = myState.getBoard().getAttackedByMe().stream()
-                .filter(coord -> opponentState.getBoard().getShips().stream()
-                        .anyMatch(ship -> ship.getCells().contains(coord)))
-                .collect(Collectors.toList());
+        // Use static records of my attacks (not dynamically calculated)
+        List<Coord> myHits = myState.getBoard().getAttacksByMeHits();
+        List<Coord> myMisses = myState.getBoard().getAttacksByMeMisses();
         
-        List<Coord> myMisses = myState.getBoard().getAttackedByMe().stream()
-                .filter(coord -> opponentState.getBoard().getShips().stream()
-                        .noneMatch(ship -> ship.getCells().contains(coord)))
-                .collect(Collectors.toList());
+        System.out.println("[ViewShaping] Static myHits: " + myHits);
+        System.out.println("[ViewShaping] Static myMisses: " + myMisses);
         
         Map<String, Object> attacksByMe = new HashMap<>();
         attacksByMe.put("hits", myHits);
         attacksByMe.put("misses", myMisses);
         revealed.put("attacksByMe", attacksByMe);
         
-        // Sunk opponent ships
-        List<Map<String, Object>> sunkShips = opponentState.getBoard().getShips().stream()
-                .filter(Ship::isSunk)
+        System.out.println("[ViewShaping] attacksByMe map: " + attacksByMe);
+        
+        // Sunk opponent ships (from sunkShips list, not from active ships)
+        List<Map<String, Object>> sunkShips = opponentState.getBoard().getSunkShips().stream()
                 .map(ship -> {
                     Map<String, Object> shipMap = new HashMap<>();
                     shipMap.put("kind", ship.getKind().name());
                     shipMap.put("length", ship.getKind().getLength());
+                    shipMap.put("cells", ship.getCells());  // Show final position of sunk ship
                     return shipMap;
                 })
                 .collect(Collectors.toList());
         revealed.put("sunkShips", sunkShips);
+        
+        System.out.println("[ViewShaping] Sunk ships count: " + sunkShips.size());
         
         Map<String, Object> opponent = new HashMap<>();
         opponent.put("revealed", revealed);

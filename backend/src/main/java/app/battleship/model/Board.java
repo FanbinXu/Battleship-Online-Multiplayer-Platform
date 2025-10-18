@@ -11,10 +11,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Board {
-    private List<Ship> ships = new ArrayList<>();
-    private List<Coord> hits = new ArrayList<>();
-    private List<Coord> misses = new ArrayList<>();
-    private List<Coord> attackedByMe = new ArrayList<>();
+    private List<Ship> ships = new ArrayList<>();  // Active ships (not sunk)
+    private List<Ship> sunkShips = new ArrayList<>();  // Ships that have been sunk and removed
+    private List<Coord> hits = new ArrayList<>();  // Attacks received on my board (hits)
+    private List<Coord> misses = new ArrayList<>();  // Attacks received on my board (misses) - should be empty
+    private List<Coord> attacksByMeHits = new ArrayList<>();  // My attacks that hit opponent (static record)
+    private List<Coord> attacksByMeMisses = new ArrayList<>();  // My attacks that missed opponent (static record)
 }
 
 

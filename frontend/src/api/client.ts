@@ -54,6 +54,15 @@ export const gameApi = {
       target,
     }),
   
+  moveShip: (gameId: string, actionId: string, turnNumber: number, shipId: string, newPosition: { r: number; c: number }, isHorizontal: boolean) =>
+    apiClient.post(`/api/games/${gameId}/action/move`, {
+      actionId,
+      turnNumber,
+      shipId,
+      newPosition,
+      isHorizontal,
+    }),
+  
   requestSuggestion: (gameId: string) =>
     apiClient.post(`/api/games/${gameId}/suggest`),
 };

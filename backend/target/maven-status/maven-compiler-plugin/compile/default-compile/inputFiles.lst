@@ -23,6 +23,7 @@
 /Users/hanqizhang/Desktop/BattleShip2/backend/src/main/java/app/battleship/model/Room.java
 /Users/hanqizhang/Desktop/BattleShip2/backend/src/main/java/app/battleship/model/Ship.java
 /Users/hanqizhang/Desktop/BattleShip2/backend/src/main/java/app/battleship/model/ShipKind.java
+/Users/hanqizhang/Desktop/BattleShip2/backend/src/main/java/app/battleship/model/ShipMoveRequest.java
 /Users/hanqizhang/Desktop/BattleShip2/backend/src/main/java/app/battleship/model/User.java
 /Users/hanqizhang/Desktop/BattleShip2/backend/src/main/java/app/battleship/persist/EventDoc.java
 /Users/hanqizhang/Desktop/BattleShip2/backend/src/main/java/app/battleship/persist/EventRepository.java

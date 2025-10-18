@@ -83,7 +83,13 @@ public class AiSuggestionService {
     
     private Map<String, Object> generateLocalHeuristic(GameState state, String playerId) {
         PlayerState myState = state.getPlayers().get(playerId);
-        List<Coord> alreadyAttacked = myState.getBoard().getAttackedByMe();
+        List<Coord> hits = myState.getBoard().getAttacksByMeHits();
+        List<Coord> misses = myState.getBoard().getAttacksByMeMisses();
+        
+        // Combine to get all already attacked coordinates
+        List<Coord> alreadyAttacked = new ArrayList<>();
+        alreadyAttacked.addAll(hits);
+        alreadyAttacked.addAll(misses);
         
         // Find all available coordinates
         List<Coord> available = new ArrayList<>();
@@ -101,17 +107,6 @@ public class AiSuggestionService {
         }
         
         // Simple heuristic: prefer coordinates adjacent to hits
-        List<Coord> hits = alreadyAttacked.stream()
-                .filter(coord -> {
-                    String opponentId = state.getPlayers().keySet().stream()
-                            .filter(id -> !id.equals(playerId))
-                            .findFirst()
-                            .orElseThrow();
-                    PlayerState opponent = state.getPlayers().get(opponentId);
-                    return opponent.getBoard().getShips().stream()
-                            .anyMatch(ship -> ship.getCells().contains(coord));
-                })
-                .collect(Collectors.toList());
         
         Coord target;
         if (!hits.isEmpty()) {
@@ -156,16 +151,26 @@ public class AiSuggestionService {
     
     private Map<String, Object> generateOpenAiSuggestion(GameState state, String playerId) throws Exception {
         PlayerState myState = state.getPlayers().get(playerId);
+        String opponentId = state.getPlayers().keySet().stream()
+                .filter(id -> !id.equals(playerId))
+                .findFirst()
+                .orElseThrow();
+        PlayerState opponentState = state.getPlayers().get(opponentId);
         
-        // Build prompt with game state
-        String prompt = buildPrompt(myState);
+        // Build prompt with complete game state
+        Map<String, Object> gameStateInfo = buildGameStateInfo(myState, opponentState);
+        String prompt = buildPrompt(gameStateInfo);
         
         Map<String, Object> requestBody = Map.of(
                 "model", "gpt-4o-mini",
                 "messages", List.of(
                         Map.of("role", "system", "content", 
-                                "You are a Battleship game AI. Standard rules: 10x10 board, fleet 5/4/3/3/2, " +
-                                "no movement, 1 attack per turn, no duplicate attacks. " +
+                                "You are a Battleship game AI. IMPORTANT: Ships can MOVE during the game! " +
+                                "The hits/misses you see are HISTORICAL RECORDS from when attacks occurred. " +
+                                "A 'hit' means there was a ship at that location when attacked. " +
+                                "A 'miss' means there was no ship at that location when attacked. " +
+                                "The enemy may have moved ships since then, so previous misses might now have ships. " +
+                                "Standard rules: 10x10 board, fleet 5/4/3/3/2, 1 attack per turn, no duplicate attacks. " +
                                 "Output ONLY valid JSON with this exact format: " +
                                 "{\"type\":\"ATTACK\",\"confidence\":0.0,\"detail\":{\"target\":{\"r\":0,\"c\":0}}}"),
                         Map.of("role", "user", "content", prompt)
@@ -209,15 +214,57 @@ public class AiSuggestionService {
         return suggestion;
     }
     
-    private String buildPrompt(PlayerState myState) {
-        List<Coord> attacked = myState.getBoard().getAttackedByMe();
+    private Map<String, Object> buildGameStateInfo(PlayerState myState, PlayerState opponentState) {
+        // Use static records of attacks (not dynamically calculated)
+        List<Coord> hits = myState.getBoard().getAttacksByMeHits();
+        List<Coord> misses = myState.getBoard().getAttacksByMeMisses();
+        int totalAttacks = hits.size() + misses.size();
         
-        return String.format(
-                "I have attacked these coordinates: %s. " +
-                "Suggest the next best attack coordinate (row 0-9, col 0-9). " +
-                "Return only the JSON object.",
-                attacked.isEmpty() ? "none yet" : attacked.toString()
-        );
+        // Get sunk ships (from sunkShips list, not from active ships)
+        List<Map<String, Object>> sunkShips = opponentState.getBoard().getSunkShips().stream()
+                .map(ship -> {
+                    Map<String, Object> shipMap = new HashMap<>();
+                    shipMap.put("kind", ship.getKind().name());
+                    shipMap.put("length", ship.getKind().getLength());
+                    return shipMap;
+                })
+                .collect(Collectors.toList());
+        
+        Map<String, Object> attacksInfo = new HashMap<>();
+        attacksInfo.put("total", totalAttacks);
+        attacksInfo.put("hits", hits);
+        attacksInfo.put("misses", misses);
+        
+        Map<String, Object> info = new HashMap<>();
+        info.put("myAttacks", attacksInfo);
+        info.put("opponentSunkShips", sunkShips);
+        info.put("remainingCells", 100 - totalAttacks);
+        
+        return info;
+    }
+    
+    private String buildPrompt(Map<String, Object> gameStateInfo) {
+        try {
+            String jsonState = objectMapper.writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(gameStateInfo);
+            
+            return String.format(
+                    "Current game state (hits/misses are HISTORICAL RECORDS):\n%s\n\n" +
+                    "Analysis guidelines:\n" +
+                    "- 'hits' = coordinates where enemy ships WERE located when I attacked them\n" +
+                    "- 'misses' = coordinates where enemy ships WERE NOT located when I attacked them\n" +
+                    "- Enemy can move ships, so ships may no longer be at 'hit' locations\n" +
+                    "- Enemy may have moved ships to previous 'miss' locations\n" +
+                    "- Cannot attack the same coordinate twice\n" +
+                    "- Consider that enemy may move damaged ships to avoid further hits\n\n" +
+                    "Suggest the next best attack coordinate (row 0-9, col 0-9). " +
+                    "Return only the JSON object with your suggestion.",
+                    jsonState
+            );
+        } catch (Exception e) {
+            log.error("Failed to serialize game state", e);
+            return "Suggest a random attack coordinate. Return only the JSON object.";
+        }
     }
 }
 
